@@ -1,0 +1,6 @@
+@FinancialApi_HostAddress = https://172.16.12.31:5072
+
+GET {{FinancialApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
