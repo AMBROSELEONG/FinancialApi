@@ -127,6 +127,93 @@ namespace FinancialApi.Controller
             }
             return Ok(new { success = true, data = spends });
         }
+
+        [HttpGet("GetUserWeeklySpendTypeRatio")]
+        public async Task<IActionResult> GetUserWeeklySpendTypeRatio(int userId)
+        {
+            if (userId <= 0)
+            {
+                return BadRequest(new { success = false, message = "Invalid UserID" });
+            }
+
+            TimeZoneInfo myTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kuala_Lumpur");
+            DateTime todayMalaysia = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, myTimeZone).Date;
+
+            DateTime oneWeekAgo = todayMalaysia.AddDays(-7);
+
+            var userSpends = await _context.EwalletSpends
+                                           .Where(w => w.UserID == userId)
+                                           .ToListAsync();
+
+            userSpends = userSpends
+                          .Where(w => DateTime.Parse(w.Date) >= oneWeekAgo)
+                          .ToList();
+
+            if (!userSpends.Any())
+            {
+                return NotFound("No income data found for the specified user in the past week.");
+            }
+
+            var typeAmountMap = userSpends
+                                .GroupBy(w => w.Type)
+                                .Select(g => new
+                                {
+                                    Type = g.Key,
+                                    TotalAmount = g.Sum(w => (decimal)w.Amount)
+                                })
+                                .ToList();
+
+            var maxType = typeAmountMap
+                          .OrderByDescending(t => t.TotalAmount)
+                          .FirstOrDefault();
+
+            if (maxType == null)
+            {
+                return NotFound("No income type data found.");
+            }
+
+            decimal totalAmount = typeAmountMap.Sum(t => t.TotalAmount);
+            decimal maxTypeAmount = maxType.TotalAmount;
+            decimal ratio = maxTypeAmount / totalAmount;
+
+            return Ok(new
+            {
+                success = true,
+                MaxType = maxType.Type,
+                MaxTypeAmount = maxTypeAmount,
+                Ratio = ratio,
+                AllTypes = typeAmountMap.ToDictionary(t => t.Type, t => t.TotalAmount)
+            });
+        }
+
+        [HttpGet("WeeklySpend")]
+        public async Task<IActionResult> GetWeeklySpend(int userId)
+        {
+            if (userId <= 0)
+            {
+                return BadRequest(new { success = false, message = "Invalid UserID" });
+            }
+
+            TimeZoneInfo myTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kuala_Lumpur");
+            DateTime todayMalaysia = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, myTimeZone).Date;
+
+            var results = new List<object>();
+
+            for (int i = 0; i < 7; i++)
+            {
+                DateTime targetDate = todayMalaysia.AddDays(-i);
+                string formattedDate = targetDate.ToString("yyyy-MM-dd");
+
+                decimal dailySpend = await _context.EwalletSpends
+                    .Where(w => w.UserID == userId && w.Date == formattedDate)
+                    .SumAsync(w => (decimal)w.Amount);
+
+                results.Add(new { Date = formattedDate, TotalSpend = dailySpend });
+            }
+
+            return Ok(new { success = true, data = results });
+        }
+        
     }
     public class GetEwalletSpend
     {

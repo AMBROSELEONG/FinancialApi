@@ -79,6 +79,68 @@ namespace FinancialApi.Controller
                 }
             });
         }
+
+        [HttpGet("GetTotalBalance")]
+        public async Task<IActionResult> GetTotalBalance([FromQuery] int userID)
+        {
+            if (userID <= 0)
+            {
+                return BadRequest("Invalid UserID");
+            }
+
+            // 获取银行余额
+            var bankData = await _context.Banks
+                .Where(b => b.UserID == userID)
+                .GroupBy(b => b.UserID)
+                .Select(g => new
+                {
+                    UserID = g.Key,
+                    TotalBalance = g.Sum(b => b.Amount)
+                }).FirstOrDefaultAsync();
+
+            var bankBalance = bankData?.TotalBalance ?? 0;
+
+            // 获取电子钱包余额
+            var ewalletData = await _context.Ewallets
+                .Where(e => e.UserID == userID)
+                .Select(e => new
+                {
+                    e.Balance
+                })
+                .FirstOrDefaultAsync();
+
+            var ewalletBalance = ewalletData?.Balance ?? 0;
+
+            // 获取钱包余额
+            var walletData = await _context.Wallets
+                .Where(w => w.UserID == userID)
+                .Select(w => new
+                {
+                    w.Balance
+                })
+                .FirstOrDefaultAsync();
+
+            var walletBalance = walletData?.Balance ?? 0;
+
+            // 计算总余额
+            var totalBalance = bankBalance + ewalletBalance + walletBalance;
+
+            // 计算银行余额的比例百分比
+            var walletPercentage = totalBalance > 0 ? (walletBalance / totalBalance) * 100 : 0;
+
+            return Ok(new
+            {
+                success = true,
+                total = new
+                {
+                    totalBalance,
+                    bankBalance,
+                    ewalletBalance,
+                    walletBalance,
+                    walletPercentage
+                }
+            });
+        }
     }
 
     public class getWalletRequest

@@ -27,6 +27,9 @@ namespace FinancialApi.Data
         public DbSet<Bank> Banks { get; set; }
         public DbSet<BankIncome> BankIncomes { get; set; }
         public DbSet<BankSpend> BankSpends { get; set; }
+        public DbSet<Debt> Debts { get; set; }
+        public DbSet<DebtPay> DebtPays { get; set; }
+        public DbSet<DebtHistory> DebtHistories { get; set; }
 
     }
 }

@@ -292,3 +292,4 @@ D:\FinalProject\Financial Api\FinancialApi\obj\Debug\net8.0\refint\FinancialApi.
 D:\FinalProject\Financial Api\FinancialApi\obj\Debug\net8.0\FinancialApi.pdb
 D:\FinalProject\Financial Api\FinancialApi\obj\Debug\net8.0\FinancialApi.genruntimeconfig.cache
 D:\FinalProject\Financial Api\FinancialApi\obj\Debug\net8.0\ref\FinancialApi.dll
+D:\FinalProject\Financial Api\FinancialApi\bin\Debug\net8.0\financial-70354-firebase-adminsdk-hnkuv-0394bbd791.json

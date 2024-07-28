@@ -37,6 +37,7 @@ builder.Services.AddSingleton<SmtpClient>(serviceProvider =>
 });
 
 builder.Services.AddHostedService<NotificationService>();
+builder.Services.AddHostedService<DebtNotificationService>();
 builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();

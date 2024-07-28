@@ -186,6 +186,98 @@ namespace FinancialApi.Controller
                 }
             });
         }
+
+        [HttpGet("GetPercent")]
+        public async Task<IActionResult> GetPercent([FromQuery] int userID, [FromQuery] int bankID)
+        {
+            if (userID <= 0)
+            {
+                return BadRequest("Invalid UserID");
+            }
+
+            // 获取银行余额
+            var bankData = await _context.Banks
+                .Where(b => b.UserID == userID)
+                .GroupBy(b => b.UserID)
+                .Select(g => new
+                {
+                    UserID = g.Key,
+                    TotalBalance = g.Sum(b => b.Amount)
+                }).FirstOrDefaultAsync();
+
+            var bankBalance = bankData?.TotalBalance ?? 0;
+
+            // 获取电子钱包余额
+            var ewalletData = await _context.Ewallets
+                .Where(e => e.UserID == userID)
+                .Select(e => new
+                {
+                    e.Balance
+                })
+                .FirstOrDefaultAsync();
+
+            var ewalletBalance = ewalletData?.Balance ?? 0;
+
+            // 获取钱包余额
+            var walletData = await _context.Wallets
+                .Where(w => w.UserID == userID)
+                .Select(w => new
+                {
+                    w.Balance
+                })
+                .FirstOrDefaultAsync();
+
+            var walletBalance = walletData?.Balance ?? 0;
+
+            // 计算总余额
+            var totalBalance = bankBalance + ewalletBalance + walletBalance;
+
+            if (totalBalance == 0)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    total = new
+                    {
+                        totalBalance,
+                        bankBalance,
+                        ewalletBalance,
+                        walletBalance,
+                        specifiedBankBalance = 0,
+                        specifiedBankPercentage = 0
+                    }
+                });
+            }
+
+            if (bankID <= 0)
+            {
+                return BadRequest("Invalid UserID");
+            }
+
+            var specifiedBankData = await _context.Banks
+                   .Where(b => b.UserID == userID && b.BankID == bankID)
+                   .Select(b => new
+                   {
+                       b.Amount
+                   })
+                   .FirstOrDefaultAsync();
+
+            var specifiedBankBalance = specifiedBankData?.Amount ?? 0;
+            var specifiedBankPercentage = totalBalance > 0 ? ((specifiedBankBalance / totalBalance) * 100) : 0;
+
+            return Ok(new
+            {
+                success = true,
+                total = new
+                {
+                    totalBalance,
+                    bankBalance,
+                    ewalletBalance,
+                    specifiedBankBalance,
+                    specifiedBankPercentage
+                }
+            });
+        }
     }
 
     public class AddBankRequest
@@ -195,6 +287,7 @@ namespace FinancialApi.Controller
         public string BankName { get; set; }
         public float Amount { get; set; }
     }
+    
 }
 
 

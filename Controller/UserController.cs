@@ -159,7 +159,8 @@ namespace FinancialApi.Controller
                     u.UserID,
                     u.UserName,
                     u.Email,
-                    u.Password
+                    u.Password,
+                    u.Token
                 })
                 .FirstOrDefaultAsync();
 
@@ -176,7 +177,8 @@ namespace FinancialApi.Controller
                     userData.UserID,
                     userData.UserName,
                     userData.Email,
-                    userData.Password
+                    userData.Password,
+                    userData.Token
                 }
             });
         }

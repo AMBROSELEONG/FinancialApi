@@ -105,6 +105,86 @@ namespace FinancialApi.Migrations
                     b.ToTable("BankSpends");
                 });
 
+            modelBuilder.Entity("FinancialApi.Models.Debt", b =>
+                {
+                    b.Property<int>("DebtID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DebtID"));
+
+                    b.Property<float>("Amount")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DebtName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("TotalAmount")
+                        .HasColumnType("real");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("DebtID");
+
+                    b.ToTable("Debts");
+                });
+
+            modelBuilder.Entity("FinancialApi.Models.DebtHistory", b =>
+                {
+                    b.Property<int>("DebtHistoryID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DebtHistoryID"));
+
+                    b.Property<int>("DebtPayID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LastDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("PayDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("DebtHistoryID");
+
+                    b.ToTable("DebtHistories");
+                });
+
+            modelBuilder.Entity("FinancialApi.Models.DebtPay", b =>
+                {
+                    b.Property<int>("DebtPayID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DebtPayID"));
+
+                    b.Property<int>("DebtID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("NextDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("DebtPayID");
+
+                    b.ToTable("DebtPays");
+                });
+
             modelBuilder.Entity("FinancialApi.Models.Ewallet", b =>
                 {
                     b.Property<int>("EwalletID")
