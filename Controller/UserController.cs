@@ -43,7 +43,7 @@ namespace FinancialApi.Controller
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Ok(new { success = true});
+            return Ok(new { success = true });
         }
 
         [HttpPost("CheckUserName")]
@@ -361,6 +361,19 @@ namespace FinancialApi.Controller
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
+            var userDebts = await _context.Debts.Where(d => d.UserID == request.UserId).ToListAsync();
+
+            if (userDebts.Count > 0)
+            {
+                foreach (var debt in userDebts)
+                {
+                    debt.Token = request.Token;
+                }
+
+                _context.Debts.UpdateRange(userDebts);
+            }
+            await _context.SaveChangesAsync();
+            
             return Ok(new { success = true, message = "Token data updated successfully" });
         }
 
@@ -428,6 +441,6 @@ namespace FinancialApi.Controller
     {
         public int UserId { get; set; }
         public required string Token { get; set; }
-        
+
     }
 }

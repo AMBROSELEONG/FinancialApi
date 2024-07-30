@@ -23,12 +23,5 @@ namespace FinancialApi.Services
                 .Where(u => u.LastLogin < threshold)
                 .ToListAsync();
         }
-
-        public async Task<List<DebtPay>> GetDebt(DateTime threshold)
-        {
-            return await _context.DebtPays
-            .Where(d => d.NextDate < threshold)
-            .ToListAsync();
-        }
     }
 }
